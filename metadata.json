@@ -1,0 +1,6 @@
+{
+  "name": "DON'T TAP THE HEART ❤️",
+  "description": "An addictive, cinematic, interactive journey exploring curiosity and connection.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

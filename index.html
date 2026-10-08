@@ -1,0 +1,1618 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  <title>DON’T TAP THE HEART ❤️</title>
+  <meta name="description" content="An addictive, cinematic, interactive journey exploring curiosity and connection." />
+  <meta property="og:title" content="DON’T TAP THE HEART ❤️" />
+  <meta property="og:description" content="An addictive, cinematic, interactive journey exploring curiosity and connection." />
+  <meta property="og:type" content="website" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Playfair+Display:ital,wght@0,500;0,600;1,400;1,600&display=swap" rel="stylesheet">
+  
+  <style>
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      user-select: none;
+      -webkit-user-select: none;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    :root {
+      --bg-dark: #020207;
+      --pink-glow: #ff2a6d;
+      --rose: #ff4081;
+      --deep-red: #e60049;
+      --gold-spark: #ffd166;
+      --text-main: #f8fafc;
+      --text-muted: rgba(248, 250, 252, 0.55);
+    }
+
+    html, body {
+      width: 100%;
+      height: 100%;
+      min-height: 100vh;
+      min-height: -webkit-fill-available;
+      background-color: var(--bg-dark);
+      color: var(--text-main);
+      font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      overflow: hidden;
+      position: fixed;
+      touch-action: manipulation;
+    }
+
+    /* Screen Container: 9:16 vertical Reel optimized, responsive */
+    #app-container {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      background: radial-gradient(circle at 50% 50%, #08081a 0%, #020207 80%);
+      transition: background 1.8s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    #app-container.stage-universe {
+      background: radial-gradient(circle at 50% 45%, #180d2c 0%, #0b071a 50%, #020207 90%);
+    }
+
+    #app-container.stage-reveal {
+      background: radial-gradient(circle at 50% 50%, #200a1e 0%, #0f0516 55%, #020207 95%);
+    }
+
+    /* Fullscreen Particle Canvas */
+    #particle-canvas {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 5;
+    }
+
+    /* Cinematic Film Vignette & Grain */
+    .vignette-overlay {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      z-index: 10;
+      background: radial-gradient(circle at 50% 50%, transparent 45%, rgba(2, 2, 7, 0.6) 80%, rgba(2, 2, 7, 0.95) 100%);
+    }
+
+    .flash-overlay {
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(circle, rgba(255, 64, 129, 0.35) 0%, rgba(255, 255, 255, 0.25) 50%, transparent 80%);
+      opacity: 0;
+      pointer-events: none;
+      z-index: 12;
+      transition: opacity 0.4s ease-out;
+    }
+    .flash-overlay.active {
+      opacity: 1;
+      transition: opacity 0.05s ease-in;
+    }
+
+    /* Top Navigation / Controls */
+    .top-controls {
+      position: absolute;
+      top: max(16px, env(safe-area-inset-top));
+      left: 0;
+      right: 0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0 20px;
+      z-index: 50;
+      pointer-events: none;
+    }
+
+    .brand-tag {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: rgba(255, 255, 255, 0.35);
+      transition: opacity 0.5s ease;
+    }
+
+    .audio-btn {
+      pointer-events: auto;
+      background: rgba(255, 255, 255, 0.06);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      color: rgba(255, 255, 255, 0.8);
+      width: 38px;
+      height: 38px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      font-size: 15px;
+      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .audio-btn:hover {
+      background: rgba(255, 255, 255, 0.14);
+      transform: scale(1.08);
+      color: #fff;
+    }
+    .audio-btn.sound-on {
+      border-color: rgba(255, 64, 129, 0.5);
+      box-shadow: 0 0 15px rgba(255, 64, 129, 0.3);
+    }
+
+    /* Main Viewport Content Layout (Optimized for 9:16 mobile & reels) */
+    .stage-wrapper {
+      position: relative;
+      width: 100%;
+      max-width: 460px;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 24px 20px;
+      z-index: 20;
+      text-align: center;
+    }
+
+    /* Primary Interactive Target Heart */
+    .heart-button-wrap {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+      z-index: 30;
+      padding: 30px;
+    }
+
+    .heart-aura {
+      position: absolute;
+      width: 110px;
+      height: 110px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(255, 42, 109, 0.35) 0%, rgba(255, 42, 109, 0) 70%);
+      filter: blur(8px);
+      animation: auraPulse 2.4s infinite ease-in-out;
+      pointer-events: none;
+    }
+
+    .main-heart-svg {
+      width: 64px;
+      height: 64px;
+      filter: drop-shadow(0 0 16px rgba(255, 42, 109, 0.85)) drop-shadow(0 0 35px rgba(255, 64, 129, 0.5));
+      transform-origin: center center;
+      transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+      will-change: transform;
+    }
+
+    .heart-beating {
+      animation: heartbeatCycle 1.35s infinite ease-in-out;
+    }
+
+    @keyframes heartbeatCycle {
+      0% { transform: scale(1); }
+      14% { transform: scale(1.18); }
+      28% { transform: scale(1.04); }
+      42% { transform: scale(1.28); }
+      65% { transform: scale(1); }
+      100% { transform: scale(1); }
+    }
+
+    @keyframes auraPulse {
+      0%, 100% { transform: scale(0.85); opacity: 0.45; }
+      42% { transform: scale(1.4); opacity: 0.95; }
+    }
+
+    .heart-button-wrap:active .main-heart-svg {
+      transform: scale(0.88);
+    }
+
+    /* Typography & Cinematic Texts */
+    .headline-top {
+      font-size: clamp(20px, 5.5vw, 26px);
+      font-weight: 800;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: #ffffff;
+      text-shadow: 0 0 20px rgba(255, 255, 255, 0.4), 0 0 40px rgba(255, 42, 109, 0.45);
+      margin-bottom: 24px;
+      transition: opacity 0.6s ease, transform 0.6s ease;
+      line-height: 1.3;
+    }
+
+    .subtext-bottom {
+      font-size: 13px;
+      font-weight: 400;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: rgba(255, 255, 255, 0.42);
+      margin-top: 24px;
+      transition: opacity 0.6s ease, transform 0.6s ease;
+    }
+
+    /* Cinematic Text Sequences */
+    .story-text-container {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 32px 24px;
+      pointer-events: none;
+      z-index: 25;
+    }
+
+    .cinema-line {
+      font-size: clamp(21px, 5.8vw, 28px);
+      font-weight: 600;
+      color: #ffffff;
+      line-height: 1.45;
+      letter-spacing: 0.03em;
+      opacity: 0;
+      transform: translateY(14px) scale(0.97);
+      transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1), transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+      text-shadow: 0 0 25px rgba(255, 255, 255, 0.35), 0 0 50px rgba(255, 42, 109, 0.3);
+      max-width: 380px;
+    }
+
+    .cinema-line.serif {
+      font-family: 'Playfair Display', Georgia, serif;
+      font-style: italic;
+      font-weight: 500;
+      letter-spacing: 0.01em;
+    }
+
+    .cinema-line.visible {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+
+    .cinema-line.fade-out {
+      opacity: 0;
+      transform: translateY(-12px) scale(1.02);
+      transition: opacity 0.6s ease-in, transform 0.6s ease-in;
+    }
+
+    /* Decision Prompt Buttons */
+    .choice-container {
+      position: absolute;
+      bottom: max(65px, env(safe-area-inset-bottom));
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 14px;
+      width: 100%;
+      max-width: 320px;
+      opacity: 0;
+      pointer-events: none;
+      transform: translateY(25px);
+      transition: opacity 0.7s cubic-bezier(0.16, 1, 0.3, 1), transform 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+      z-index: 40;
+    }
+    .choice-container.active {
+      opacity: 1;
+      pointer-events: auto;
+      transform: translateY(0);
+    }
+
+    .btn-choice {
+      width: 100%;
+      padding: 15px 24px;
+      border-radius: 999px;
+      font-size: 15px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+      border: none;
+      outline: none;
+    }
+    .btn-choice-yes {
+      background: linear-gradient(135deg, #ff2a6d 0%, #ff4081 100%);
+      color: #ffffff;
+      box-shadow: 0 0 25px rgba(255, 42, 109, 0.45), 0 8px 24px rgba(0, 0, 0, 0.4);
+    }
+    .btn-choice-yes:hover, .btn-choice-yes:active {
+      transform: scale(1.04);
+      box-shadow: 0 0 35px rgba(255, 42, 109, 0.7), 0 10px 28px rgba(0, 0, 0, 0.5);
+    }
+
+    .btn-choice-curious {
+      background: rgba(255, 255, 255, 0.08);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      color: #ffffff;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+    }
+    .btn-choice-curious:hover, .btn-choice-curious:active {
+      background: rgba(255, 255, 255, 0.16);
+      border-color: rgba(255, 255, 255, 0.4);
+      transform: scale(1.04);
+    }
+
+    /* Final CTA & Share Card */
+    .final-cta-container {
+      position: absolute;
+      bottom: max(32px, env(safe-area-inset-bottom));
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      width: 100%;
+      max-width: 340px;
+      opacity: 0;
+      pointer-events: none;
+      transform: translateY(20px);
+      transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1), transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+      z-index: 45;
+    }
+    .final-cta-container.active {
+      opacity: 1;
+      pointer-events: auto;
+      transform: translateY(0);
+    }
+
+    .cta-subtext {
+      font-size: 13.5px;
+      color: rgba(255, 255, 255, 0.75);
+      margin-bottom: 14px;
+      letter-spacing: 0.02em;
+    }
+
+    .btn-send {
+      width: 100%;
+      padding: 16px 28px;
+      border-radius: 999px;
+      font-size: 15px;
+      font-weight: 800;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      background: linear-gradient(135deg, #ff2a6d 0%, #ff5252 50%, #ff4081 100%);
+      color: #fff;
+      border: none;
+      cursor: pointer;
+      box-shadow: 0 0 30px rgba(255, 42, 109, 0.55), 0 10px 30px rgba(0, 0, 0, 0.5);
+      transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+    }
+    .btn-send:hover, .btn-send:active {
+      transform: scale(1.04);
+      box-shadow: 0 0 45px rgba(255, 42, 109, 0.8), 0 12px 35px rgba(0, 0, 0, 0.6);
+    }
+
+    .btn-replay {
+      margin-top: 14px;
+      background: transparent;
+      border: none;
+      color: rgba(255, 255, 255, 0.45);
+      font-size: 13px;
+      font-weight: 500;
+      letter-spacing: 0.04em;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 12px;
+      border-radius: 6px;
+      transition: all 0.2s ease;
+    }
+    .btn-replay:hover {
+      color: #ffffff;
+      transform: scale(1.05);
+    }
+
+    /* Toast Notification for Share / Copy */
+    .toast-msg {
+      position: absolute;
+      top: max(70px, env(safe-area-inset-top));
+      padding: 10px 20px;
+      background: rgba(20, 20, 30, 0.85);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid rgba(255, 64, 129, 0.4);
+      border-radius: 999px;
+      color: #ffffff;
+      font-size: 13px;
+      font-weight: 600;
+      letter-spacing: 0.02em;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5), 0 0 20px rgba(255, 64, 129, 0.25);
+      opacity: 0;
+      transform: translateY(-10px) scale(0.95);
+      pointer-events: none;
+      transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+      z-index: 100;
+    }
+    .toast-msg.show {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+
+    /* Celestial Elements for Secret World (Pure CSS + Canvas) */
+    .celestial-moon {
+      position: absolute;
+      top: 15%;
+      right: 12%;
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      background: #fdf6e2;
+      box-shadow: 0 0 25px rgba(253, 246, 226, 0.8), 0 0 60px rgba(253, 246, 226, 0.35);
+      opacity: 0;
+      transform: scale(0.4);
+      transition: all 2s cubic-bezier(0.16, 1, 0.3, 1);
+      pointer-events: none;
+      z-index: 6;
+    }
+    .celestial-moon.visible {
+      opacity: 0.9;
+      transform: scale(1);
+    }
+    .celestial-moon::after {
+      content: '';
+      position: absolute;
+      top: 2px;
+      left: 6px;
+      width: 38px;
+      height: 38px;
+      border-radius: 50%;
+      background: #0d071d;
+      opacity: 0.94;
+    }
+
+    /* Heart Pulse Wave Animation */
+    .pulse-ring {
+      position: absolute;
+      width: 100px;
+      height: 100px;
+      border-radius: 50%;
+      border: 2px solid rgba(255, 42, 109, 0.7);
+      opacity: 0;
+      pointer-events: none;
+      z-index: 15;
+    }
+
+    /* Touch Ripple Effect */
+    .touch-ripple {
+      position: absolute;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(255, 64, 129, 0.6) 0%, rgba(255, 42, 109, 0) 70%);
+      transform: translate(-50%, -50%) scale(0);
+      pointer-events: none;
+      animation: touchRippleAnim 0.75s ease-out forwards;
+      z-index: 16;
+    }
+    @keyframes touchRippleAnim {
+      0% { transform: translate(-50%, -50%) scale(0.1); opacity: 0.9; }
+      100% { transform: translate(-50%, -50%) scale(2.8); opacity: 0; }
+    }
+  </style>
+</head>
+<body>
+  <div id="app-container">
+    <!-- Background Canvas for Particles & Stars -->
+    <canvas id="particle-canvas"></canvas>
+
+    <!-- Celestial Moon for Secret Universe Stage -->
+    <div id="celestial-moon" class="celestial-moon"></div>
+
+    <!-- Vignette & Camera Flash Layers -->
+    <div class="vignette-overlay"></div>
+    <div id="flash-overlay" class="flash-overlay"></div>
+
+    <!-- Header Controls -->
+    <header class="top-controls">
+      <div id="brand-tag" class="brand-tag">SECRET EXPERIENCE</div>
+      <button id="audio-toggle" class="audio-btn" aria-label="Toggle Sound" title="Sound Toggle">🔇</button>
+    </header>
+
+    <!-- Main Dynamic Content Wrapper -->
+    <main class="stage-wrapper">
+      <!-- Top Title -->
+      <h1 id="title-text" class="headline-top">DON’T TAP THE HEART.</h1>
+
+      <!-- Interactive Heart Element -->
+      <div id="heart-target" class="heart-button-wrap" role="button" tabindex="0" aria-label="Don't Tap The Heart">
+        <div class="heart-aura"></div>
+        <svg class="main-heart-svg heart-beating" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" fill="url(#heartGradient)" />
+          <defs>
+            <linearGradient id="heartGradient" x1="2" y1="3" x2="22" y2="21.35" gradientUnits="userSpaceOnUse">
+              <stop stop-color="#ff2a6d" />
+              <stop offset="0.6" stop-color="#ff4081" />
+              <stop offset="1" stop-color="#c2185b" />
+            </linearGradient>
+          </defs>
+        </svg>
+      </div>
+
+      <!-- Bottom Hint Text -->
+      <div id="sub-text" class="subtext-bottom">Seriously.</div>
+
+      <!-- Dynamic Story Text Prompts (Sequenced) -->
+      <div id="story-container" class="story-text-container" aria-live="polite"></div>
+
+      <!-- Question Choice Buttons (Stage 4) -->
+      <div id="choice-container" class="choice-container">
+        <button id="btn-choice-yes" class="btn-choice btn-choice-yes">YES ❤️</button>
+        <button id="btn-choice-curious" class="btn-choice btn-choice-curious">I'M CURIOUS 👀</button>
+      </div>
+
+      <!-- Final Call to Action (Stage 8) -->
+      <div id="final-cta-container" class="final-cta-container">
+        <p class="cta-subtext">Send this to someone who needs a reminder.</p>
+        <button id="btn-send-heart" class="btn-send">
+          SEND THE HEART ❤️
+        </button>
+        <button id="btn-replay" class="btn-replay">
+          Experience it again ↻
+        </button>
+      </div>
+    </main>
+
+    <!-- Floating Feedback Toast -->
+    <div id="toast-msg" class="toast-msg">Link copied to clipboard! Send it to them ❤️</div>
+  </div>
+
+  <script>
+    /**
+     * =========================================================================
+     * DON’T TAP THE HEART ❤️ — CORE INTERACTIVE & CINEMATIC SCRIPT
+     * Optimized for Instagram Reels (9:16 Vertical & Responsive)
+     * =========================================================================
+     */
+
+    // --- Audio Synthesizer (Web Audio API - No External Files) ---
+    class CinematicAudio {
+      constructor() {
+        this.ctx = null;
+        this.enabled = false;
+      }
+
+      init() {
+        if (!this.ctx) {
+          const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+          if (AudioContextClass) {
+            this.ctx = new AudioContextClass();
+          }
+        }
+        if (this.ctx && this.ctx.state === 'suspended') {
+          this.ctx.resume();
+        }
+      }
+
+      toggle() {
+        this.init();
+        this.enabled = !this.enabled;
+        return this.enabled;
+      }
+
+      // Heartbeat pulse: warm deep bass thud (lub-dub)
+      playHeartbeat(isStrong = false) {
+        if (!this.enabled || !this.ctx) return;
+        const now = this.ctx.currentTime;
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        const filter = this.ctx.createBiquadFilter();
+
+        osc.type = 'sine';
+        filter.type = 'lowpass';
+        filter.frequency.setValueAtTime(isStrong ? 120 : 90, now);
+
+        const startFreq = isStrong ? 65 : 55;
+        const endFreq = isStrong ? 35 : 30;
+
+        osc.frequency.setValueAtTime(startFreq, now);
+        osc.frequency.exponentialRampToValueAtTime(endFreq, now + 0.18);
+
+        const peakGain = isStrong ? 0.8 : 0.45;
+        gain.gain.setValueAtTime(0.001, now);
+        gain.gain.linearRampToValueAtTime(peakGain, now + 0.03);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.22);
+
+        osc.connect(filter);
+        filter.connect(gain);
+        gain.connect(this.ctx.destination);
+
+        osc.start(now);
+        osc.stop(now + 0.24);
+      }
+
+      // Particle chime / sparkle
+      playChime(pitchMod = 1) {
+        if (!this.enabled || !this.ctx) return;
+        const now = this.ctx.currentTime;
+        const freqs = [523.25, 659.25, 783.99, 1046.50, 1318.51];
+        const baseFreq = freqs[Math.floor(Math.random() * freqs.length)] * pitchMod;
+
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(baseFreq, now);
+        osc.frequency.exponentialRampToValueAtTime(baseFreq * 1.5, now + 0.4);
+
+        gain.gain.setValueAtTime(0.001, now);
+        gain.gain.linearRampToValueAtTime(0.18, now + 0.04);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.5);
+
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+
+        osc.start(now);
+        osc.stop(now + 0.52);
+      }
+
+      // Whoosh / cosmic sweep
+      playWhoosh() {
+        if (!this.enabled || !this.ctx) return;
+        const now = this.ctx.currentTime;
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(140, now);
+        osc.frequency.exponentialRampToValueAtTime(450, now + 0.3);
+        osc.frequency.exponentialRampToValueAtTime(90, now + 0.7);
+
+        gain.gain.setValueAtTime(0.001, now);
+        gain.gain.linearRampToValueAtTime(0.25, now + 0.15);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.75);
+
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+
+        osc.start(now);
+        osc.stop(now + 0.8);
+      }
+    }
+
+    const audio = new CinematicAudio();
+
+    // --- Particle Engine ---
+    const canvas = document.getElementById('particle-canvas');
+    const ctx = canvas.getContext('2d', { willReadFrequently: true });
+
+    let width = (canvas.width = window.innerWidth);
+    let height = (canvas.height = window.innerHeight);
+    let dpr = Math.min(window.devicePixelRatio || 1, 2);
+
+    // Resize handler
+    function resizeCanvas() {
+      width = window.innerWidth;
+      height = window.innerHeight;
+      dpr = Math.min(window.devicePixelRatio || 1, 2);
+      canvas.width = width * dpr;
+      canvas.height = height * dpr;
+      ctx.scale(dpr, dpr);
+    }
+    window.addEventListener('resize', resizeCanvas);
+    resizeCanvas();
+
+    // Particle class
+    class Particle {
+      constructor() {
+        this.reset();
+      }
+
+      reset() {
+        this.x = width / 2;
+        this.y = height / 2;
+        this.vx = 0;
+        this.vy = 0;
+        this.targetX = width / 2;
+        this.targetY = height / 2;
+        this.targetZ = 0;
+        this.z = 0;
+        this.size = Math.random() * 2 + 1;
+        this.alpha = 0;
+        this.targetAlpha = 0;
+        this.color = '#ff2a6d';
+        this.ease = 0.06 + Math.random() * 0.04;
+        this.friction = 0.88;
+        this.active = false;
+        this.isStar = false;
+        this.twinkleSpeed = 0.02 + Math.random() * 0.03;
+        this.twinklePhase = Math.random() * Math.PI * 2;
+      }
+    }
+
+    // Adaptive particle pool
+    const isMobile = window.innerWidth < 768;
+    const MAX_PARTICLES = isMobile ? 2400 : 3800;
+    const particles = [];
+    for (let i = 0; i < MAX_PARTICLES; i++) {
+      particles.push(new Particle());
+    }
+
+    // Shooting stars array
+    const shootingStars = [];
+    class ShootingStar {
+      constructor() {
+        this.reset();
+      }
+      reset() {
+        this.x = Math.random() * width * 0.8;
+        this.y = Math.random() * height * 0.35;
+        this.length = 80 + Math.random() * 70;
+        this.speed = 12 + Math.random() * 8;
+        this.angle = Math.PI / 4 + (Math.random() - 0.5) * 0.2;
+        this.opacity = 0;
+        this.life = 0;
+        this.maxLife = 40 + Math.random() * 25;
+        this.active = false;
+      }
+      trigger() {
+        this.reset();
+        this.active = true;
+      }
+      update() {
+        if (!this.active) return;
+        this.life++;
+        this.x += Math.cos(this.angle) * this.speed;
+        this.y += Math.sin(this.angle) * this.speed;
+        if (this.life < 10) {
+          this.opacity = this.life / 10;
+        } else if (this.life > this.maxLife - 15) {
+          this.opacity = (this.maxLife - this.life) / 15;
+        } else {
+          this.opacity = 1;
+        }
+        if (this.life >= this.maxLife) {
+          this.active = false;
+        }
+      }
+      draw(c) {
+        if (!this.active || this.opacity <= 0) return;
+        c.save();
+        c.strokeStyle = `rgba(255, 255, 255, ${this.opacity * 0.9})`;
+        c.lineWidth = 1.6;
+        c.beginPath();
+        c.moveTo(this.x, this.y);
+        c.lineTo(
+          this.x - Math.cos(this.angle) * this.length,
+          this.y - Math.sin(this.angle) * this.length
+        );
+        c.stroke();
+        c.restore();
+      }
+    }
+
+    for (let i = 0; i < 3; i++) {
+      shootingStars.push(new ShootingStar());
+    }
+
+    // Interactive pointer ripple & displacement
+    let pointerX = -1000;
+    let pointerY = -1000;
+    let isPointerDown = false;
+
+    function handlePointerMove(e) {
+      const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+      const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+      pointerX = clientX;
+      pointerY = clientY;
+    }
+
+    function createTouchRipple(x, y) {
+      const ripple = document.createElement('div');
+      ripple.className = 'touch-ripple';
+      ripple.style.left = `${x}px`;
+      ripple.style.top = `${y}px`;
+      ripple.style.width = '120px';
+      ripple.style.height = '120px';
+      document.getElementById('app-container').appendChild(ripple);
+      setTimeout(() => ripple.remove(), 800);
+    }
+
+    window.addEventListener('pointermove', handlePointerMove, { passive: true });
+    window.addEventListener('touchmove', handlePointerMove, { passive: true });
+    window.addEventListener('pointerdown', (e) => {
+      isPointerDown = true;
+      handlePointerMove(e);
+      createTouchRipple(e.clientX, e.clientY);
+    }, { passive: true });
+    window.addEventListener('pointerup', () => {
+      isPointerDown = false;
+      pointerX = -1000;
+      pointerY = -1000;
+    });
+
+    // --- State Machine & Story Engine ---
+    const STATE = {
+      INIT: 0,
+      TAP_1: 1,
+      TAP_2: 2,
+      TAP_3: 3,
+      SECRET_WORLD: 4,
+      REVEAL: 5,
+      HEARTBEAT: 6,
+      EMOTIONAL_TWIST: 7,
+      TEXT_MORPH_PERSON: 8,
+      TEXT_MORPH_YOU_ARE_LOVED: 9,
+      FINAL_CTA: 10
+    };
+
+    let currentState = STATE.INIT;
+    let stageTapCount = 0;
+    let activeTimers = [];
+
+    function clearAllTimers() {
+      activeTimers.forEach(id => clearTimeout(id));
+      activeTimers = [];
+    }
+    function safeTimeout(fn, delay) {
+      const id = setTimeout(fn, delay);
+      activeTimers.push(id);
+      return id;
+    }
+
+    // DOM Elements
+    const appContainer = document.getElementById('app-container');
+    const titleText = document.getElementById('title-text');
+    const subText = document.getElementById('sub-text');
+    const heartTarget = document.getElementById('heart-target');
+    const storyContainer = document.getElementById('story-container');
+    const choiceContainer = document.getElementById('choice-container');
+    const finalCtaContainer = document.getElementById('final-cta-container');
+    const flashOverlay = document.getElementById('flash-overlay');
+    const celestialMoon = document.getElementById('celestial-moon');
+    const audioToggle = document.getElementById('audio-toggle');
+    const toastMsg = document.getElementById('toast-msg');
+
+    // Audio Button
+    audioToggle.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const on = audio.toggle();
+      audioToggle.textContent = on ? '🔊' : '🔇';
+      audioToggle.classList.toggle('sound-on', on);
+      if (on) {
+        audio.playChime(1.2);
+      }
+    });
+
+    // Camera Pulse / Shake
+    function triggerCameraEffect(type = 'pulse') {
+      if (type === 'shake') {
+        appContainer.style.transform = `translate(${(Math.random() - 0.5) * 8}px, ${(Math.random() - 0.5) * 8}px)`;
+        setTimeout(() => (appContainer.style.transform = 'none'), 120);
+      } else if (type === 'zoom') {
+        appContainer.style.transform = 'scale(1.025)';
+        appContainer.style.transition = 'transform 0.4s cubic-bezier(0.16, 1, 0.3, 1)';
+        setTimeout(() => {
+          appContainer.style.transform = 'scale(1)';
+        }, 400);
+      }
+    }
+
+    function screenFlash() {
+      flashOverlay.classList.add('active');
+      setTimeout(() => {
+        flashOverlay.classList.remove('active');
+      }, 200);
+    }
+
+    // Text Display Helper
+    function showCinemaLine(text, isSerif = false) {
+      storyContainer.innerHTML = '';
+      const line = document.createElement('div');
+      line.className = `cinema-line ${isSerif ? 'serif' : ''}`;
+      line.textContent = text;
+      storyContainer.appendChild(line);
+      requestAnimationFrame(() => line.classList.add('visible'));
+      return line;
+    }
+
+    function clearCinemaLines() {
+      const lines = storyContainer.querySelectorAll('.cinema-line');
+      lines.forEach(l => {
+        l.classList.remove('visible');
+        l.classList.add('fade-out');
+      });
+      setTimeout(() => {
+        storyContainer.innerHTML = '';
+      }, 600);
+    }
+
+    // --- Particle Shape Sampling Functions ---
+
+    // 1. Text Sampling using Offscreen Canvas
+    function sampleTextTargets(text, fontSize = 52, letterSpacing = 0) {
+      const offCanvas = document.createElement('canvas');
+      const offCtx = offCanvas.getContext('2d');
+      offCanvas.width = width;
+      offCanvas.height = height;
+
+      offCtx.fillStyle = '#ffffff';
+      offCtx.textAlign = 'center';
+      offCtx.textBaseline = 'middle';
+      offCtx.font = `800 ${fontSize}px 'Plus Jakarta Sans', sans-serif`;
+      
+      // Multi-line support
+      const lines = text.split('\n');
+      const lineHeight = fontSize * 1.25;
+      const startY = height / 2 - ((lines.length - 1) * lineHeight) / 2;
+
+      lines.forEach((l, i) => {
+        offCtx.fillText(l.trim(), width / 2, startY + i * lineHeight);
+      });
+
+      const imgData = offCtx.getImageData(0, 0, width, height);
+      const points = [];
+      const step = isMobile ? 5 : 4; // Step for density
+
+      for (let y = 0; y < height; y += step) {
+        for (let x = 0; x < width; x += step) {
+          const index = (y * width + x) * 4;
+          if (imgData.data[index + 3] > 128) {
+            points.push({ x, y });
+          }
+        }
+      }
+      return points;
+    }
+
+    // 2. Mathematical 3D Parametric Heart Sampling
+    function sample3DHeartTargets(count) {
+      const points = [];
+      const heartScale = Math.min(width, height) * (isMobile ? 0.021 : 0.025);
+      const centerX = width / 2;
+      const centerY = height / 2 - 20;
+
+      for (let i = 0; i < count; i++) {
+        // Parametric angle t from 0 to 2*PI
+        const t = Math.PI - 2 * Math.PI * Math.random();
+        // Parametric equations for standard heart curve
+        // x = 16 * sin^3(t)
+        // y = -(13 * cos(t) - 5 * cos(2t) - 2 * cos(3t) - cos(4t))
+        let hx = 16 * Math.pow(Math.sin(t), 3);
+        let hy = -(13 * Math.cos(t) - 5 * Math.cos(2 * t) - 2 * Math.cos(3 * t) - Math.cos(4 * t));
+
+        // Volume fill and 3D depth jitter
+        const rFill = Math.pow(Math.random(), 0.55); // Concentration towards outer shell with glowing core
+        hx *= rFill;
+        hy *= rFill;
+
+        // 3D depth calculation (spherical shell projection)
+        const zDepth = (Math.random() - 0.5) * 18 * rFill;
+
+        const screenX = centerX + hx * heartScale;
+        const screenY = centerY + hy * heartScale;
+
+        points.push({
+          x: screenX,
+          y: screenY,
+          z: zDepth,
+          distFactor: rFill
+        });
+      }
+      return points;
+    }
+
+    // --- Particle Explosions and Animations ---
+    function explodeCenterHeart(count = 180, speed = 8, colorPalette = ['#ff2a6d', '#ff4081', '#ffffff', '#ffd166']) {
+      audio.playWhoosh();
+      audio.playChime(1.5);
+      triggerCameraEffect('shake');
+
+      const originX = width / 2;
+      const originY = height / 2;
+
+      for (let i = 0; i < count && i < particles.length; i++) {
+        const p = particles[i];
+        p.active = true;
+        p.x = originX;
+        p.y = originY;
+        const angle = Math.random() * Math.PI * 2;
+        const vel = Math.random() * speed + 2;
+        p.vx = Math.cos(angle) * vel;
+        p.vy = Math.sin(angle) * vel;
+        p.targetX = originX + Math.cos(angle) * (vel * 35);
+        p.targetY = originY + Math.sin(angle) * (vel * 35);
+        p.size = Math.random() * 2.8 + 1;
+        p.color = colorPalette[Math.floor(Math.random() * colorPalette.length)];
+        p.alpha = 1;
+        p.targetAlpha = 0;
+        p.friction = 0.94;
+        p.ease = 0.05;
+      }
+    }
+
+    // Morph active particles to new target points
+    function morphParticlesTo(targetPoints, color = '#ff4081', size = 2) {
+      const len = targetPoints.length;
+      const colors = ['#ffffff', '#ff2a6d', '#ff4081', '#f50057', '#ff80ab'];
+
+      for (let i = 0; i < particles.length; i++) {
+        const p = particles[i];
+        if (i < len) {
+          const tp = targetPoints[i];
+          p.active = true;
+          p.targetX = tp.x;
+          p.targetY = tp.y;
+          p.targetZ = tp.z || 0;
+          p.size = size + (tp.z ? (tp.z > 0 ? 0.8 : -0.4) : 0);
+          p.color = color === 'multi' ? colors[i % colors.length] : color;
+          p.targetAlpha = 0.9 + Math.random() * 0.1;
+          p.ease = 0.05 + Math.random() * 0.04;
+          p.friction = 0.85;
+          p.isStar = false;
+        } else {
+          p.targetAlpha = 0;
+        }
+      }
+    }
+
+    // Set particles as ambient cosmic stars
+    function formCosmicStarfield() {
+      const starColors = ['#ffffff', '#f8fafc', '#ffd166', '#a5b4fc', '#f472b6'];
+      for (let i = 0; i < particles.length; i++) {
+        const p = particles[i];
+        p.active = true;
+        p.targetX = Math.random() * width;
+        p.targetY = Math.random() * height;
+        p.x = width / 2 + (Math.random() - 0.5) * 200;
+        p.y = height / 2 + (Math.random() - 0.5) * 200;
+        p.size = Math.random() < 0.85 ? Math.random() * 1.5 + 0.8 : Math.random() * 2.6 + 1.2;
+        p.color = starColors[Math.floor(Math.random() * starColors.length)];
+        p.targetAlpha = Math.random() * 0.65 + 0.25;
+        p.ease = 0.02 + Math.random() * 0.02;
+        p.isStar = true;
+      }
+    }
+
+    // --- Heartbeat Loop for the Giant 3D Heart ---
+    let heartbeatAnimationActive = false;
+    let heartbeatPhase = 0;
+    let heartbeatTimer = null;
+
+    function startGiantHeartbeat() {
+      heartbeatAnimationActive = true;
+
+      function pulseSequence() {
+        if (!heartbeatAnimationActive) return;
+
+        // 1st Beat (Lub) - Soft
+        audio.playHeartbeat(false);
+        triggerCameraEffect('pulse');
+        pushHeartParticles(1.09);
+
+        heartbeatTimer = setTimeout(() => {
+          if (!heartbeatAnimationActive) return;
+
+          // 2nd Beat (Dub) - Strong
+          audio.playHeartbeat(true);
+          triggerCameraEffect('zoom');
+          pushHeartParticles(1.22);
+          screenFlash();
+
+          heartbeatTimer = setTimeout(pulseSequence, 850);
+        }, 180);
+      }
+
+      pulseSequence();
+    }
+
+    function stopGiantHeartbeat() {
+      heartbeatAnimationActive = false;
+      if (heartbeatTimer) clearTimeout(heartbeatTimer);
+    }
+
+    function pushHeartParticles(scaleMultiplier) {
+      const centerX = width / 2;
+      const centerY = height / 2 - 20;
+
+      for (let i = 0; i < particles.length; i++) {
+        const p = particles[i];
+        if (!p.active || p.targetAlpha <= 0) continue;
+        const dx = p.targetX - centerX;
+        const dy = p.targetY - centerY;
+        p.vx += (dx * (scaleMultiplier - 1)) * 0.25;
+        p.vy += (dy * (scaleMultiplier - 1)) * 0.25;
+      }
+    }
+
+    // --- Flow Progression Handlers ---
+
+    // Initial Tap (Tap 1)
+    function handleTap1() {
+      currentState = STATE.TAP_1;
+      stageTapCount = 1;
+
+      // UI Changes
+      titleText.style.opacity = '0';
+      subText.style.opacity = '0';
+      heartTarget.style.pointerEvents = 'none';
+      heartTarget.style.opacity = '0';
+
+      // Effects
+      screenFlash();
+      explodeCenterHeart(220, 10);
+
+      // Sequence
+      safeTimeout(() => {
+        showCinemaLine('Okay…');
+        audio.playChime(1);
+      }, 700);
+
+      safeTimeout(() => {
+        showCinemaLine('You tapped it.');
+        audio.playChime(1.1);
+      }, 1900);
+
+      safeTimeout(() => {
+        showCinemaLine('But now…');
+      }, 3100);
+
+      safeTimeout(() => {
+        showCinemaLine('…you have to keep going.', true);
+        audio.playChime(1.3);
+      }, 4200);
+
+      safeTimeout(() => {
+        clearCinemaLines();
+        titleText.textContent = 'Tap again.';
+        titleText.style.opacity = '1';
+        heartTarget.style.pointerEvents = 'auto';
+        heartTarget.style.opacity = '1';
+        heartTarget.style.transform = 'scale(1.1)';
+      }, 5500);
+    }
+
+    // Second Tap (Tap 2: The World Starts Changing)
+    function handleTap2() {
+      currentState = STATE.TAP_2;
+      stageTapCount = 2;
+
+      titleText.style.opacity = '0';
+      heartTarget.style.pointerEvents = 'none';
+      heartTarget.style.opacity = '0';
+
+      // Change background
+      appContainer.classList.add('stage-universe');
+      screenFlash();
+      explodeCenterHeart(350, 12);
+      formCosmicStarfield();
+
+      safeTimeout(() => {
+        celestialMoon.classList.add('visible');
+        shootingStars[0].trigger();
+      }, 1200);
+
+      safeTimeout(() => {
+        showCinemaLine('Some things…');
+        audio.playChime(1);
+      }, 1000);
+
+      safeTimeout(() => {
+        showCinemaLine('only appear when you look closer.', true);
+        audio.playChime(1.25);
+      }, 2400);
+
+      safeTimeout(() => {
+        clearCinemaLines();
+        titleText.textContent = 'Okay, one more.';
+        titleText.style.opacity = '1';
+        heartTarget.style.pointerEvents = 'auto';
+        heartTarget.style.opacity = '1';
+        heartTarget.style.transform = 'scale(1)';
+      }, 4200);
+    }
+
+    // Third Tap (Tap 3: The Hidden Message)
+    function handleTap3() {
+      currentState = STATE.TAP_3;
+      stageTapCount = 3;
+
+      titleText.style.opacity = '0';
+      heartTarget.style.pointerEvents = 'none';
+      heartTarget.style.opacity = '0';
+
+      explodeCenterHeart(400, 14);
+
+      // Morph 1: YOU FOUND IT ❤️
+      safeTimeout(() => {
+        audio.playWhoosh();
+        const pts = sampleTextTargets('YOU FOUND IT ❤️', isMobile ? 32 : 44);
+        morphParticlesTo(pts, '#ffffff', 2.2);
+      }, 600);
+
+      // Morph 2: BUT THERE'S MORE.
+      safeTimeout(() => {
+        audio.playWhoosh();
+        audio.playChime(1.4);
+        triggerCameraEffect('shake');
+        const pts = sampleTextTargets("BUT THERE'S\nMORE.", isMobile ? 36 : 46);
+        morphParticlesTo(pts, '#ff4081', 2.4);
+      }, 2700);
+
+      // Transition to The Secret World & Question
+      safeTimeout(() => {
+        enterSecretWorld();
+      }, 4700);
+    }
+
+    // Secret World State (Stage 4)
+    function enterSecretWorld() {
+      currentState = STATE.SECRET_WORLD;
+      formCosmicStarfield();
+      shootingStars[1].trigger();
+
+      showCinemaLine('Would you like to see\nwhat this was hiding?');
+      choiceContainer.classList.add('active');
+    }
+
+    // Trigger Reveal (Stage 5: Giant 3D Mathematical Heart)
+    function triggerGiantReveal(isYesButton = true) {
+      currentState = STATE.REVEAL;
+      choiceContainer.classList.remove('active');
+      clearCinemaLines();
+      appContainer.classList.add('stage-reveal');
+
+      if (isYesButton) {
+        explodeCenterHeart(260, 9, ['#ff4081', '#ff80ab', '#ffffff']);
+      } else {
+        explodeCenterHeart(450, 16, ['#ffd166', '#ff2a6d', '#ffffff', '#a5b4fc']);
+      }
+
+      // Single Dot appearing
+      safeTimeout(() => {
+        for (let i = 0; i < particles.length; i++) {
+          const p = particles[i];
+          p.x = width / 2;
+          p.y = height / 2;
+          p.targetX = width / 2;
+          p.targetY = height / 2;
+          p.targetAlpha = 0;
+        }
+        // Central bright dot
+        particles[0].targetAlpha = 1;
+        particles[0].alpha = 1;
+        particles[0].size = 5;
+        particles[0].color = '#ffffff';
+      }, 700);
+
+      // Exponential Multiplication into Giant 3D Heart
+      safeTimeout(() => {
+        audio.playWhoosh();
+        audio.playChime(1.5);
+        const heartPoints = sample3DHeartTargets(isMobile ? 1800 : 2800);
+        morphParticlesTo(heartPoints, 'multi', 2.2);
+      }, 1500);
+
+      // Start Heartbeat rhythm
+      safeTimeout(() => {
+        startGiantHeartbeat();
+      }, 2600);
+
+      // The Emotional Twist (Stage 7)
+      safeTimeout(() => {
+        runEmotionalTwist();
+      }, 6200);
+    }
+
+    // Stage 7: The Emotional Twist & Particle Morphing
+    function runEmotionalTwist() {
+      currentState = STATE.EMOTIONAL_TWIST;
+
+      showCinemaLine('You thought this was\njust an animation…');
+
+      safeTimeout(() => {
+        showCinemaLine('But every heart…');
+        audio.playChime(1.1);
+      }, 2200);
+
+      safeTimeout(() => {
+        showCinemaLine('…has a story.', true);
+        audio.playChime(1.3);
+      }, 4000);
+
+      safeTimeout(() => {
+        clearCinemaLines();
+        stopGiantHeartbeat();
+        morphToTagPerson();
+      }, 5800);
+    }
+
+    // Stage 8: "WHO IS YOUR PERSON? Tag them. ❤️"
+    function morphToTagPerson() {
+      currentState = STATE.TEXT_MORPH_PERSON;
+      audio.playWhoosh();
+
+      const pts = sampleTextTargets("WHO IS YOUR\nPERSON?", isMobile ? 32 : 44);
+      morphParticlesTo(pts, '#ffffff', 2.2);
+
+      safeTimeout(() => {
+        showCinemaLine('Tag them. ❤️');
+      }, 1600);
+
+      safeTimeout(() => {
+        showCinemaLine('Maybe they need to see this.');
+      }, 3300);
+
+      safeTimeout(() => {
+        clearCinemaLines();
+        morphToFinalWords();
+      }, 5200);
+    }
+
+    // Stage 9: "YOU. ARE. LOVED. ❤️"
+    function morphToFinalWords() {
+      currentState = STATE.TEXT_MORPH_YOU_ARE_LOVED;
+
+      // Word 1: YOU.
+      audio.playWhoosh();
+      audio.playChime(1);
+      let pts = sampleTextTargets('YOU.', isMobile ? 54 : 72);
+      morphParticlesTo(pts, '#ff4081', 2.8);
+
+      // Word 2: ARE.
+      safeTimeout(() => {
+        audio.playWhoosh();
+        audio.playChime(1.2);
+        pts = sampleTextTargets('ARE.', isMobile ? 54 : 72);
+        morphParticlesTo(pts, '#ff2a6d', 2.8);
+      }, 1600);
+
+      // Word 3: LOVED. ❤️
+      safeTimeout(() => {
+        audio.playWhoosh();
+        audio.playChime(1.5);
+        triggerCameraEffect('zoom');
+        pts = sampleTextTargets('LOVED. ❤️', isMobile ? 42 : 58);
+        morphParticlesTo(pts, '#ffffff', 3.0);
+      }, 3200);
+
+      // Final CTA
+      safeTimeout(() => {
+        showFinalCta();
+      }, 5200);
+    }
+
+    // Stage 10: Final CTA
+    function showFinalCta() {
+      currentState = STATE.FINAL_CTA;
+      formCosmicStarfield();
+      finalCtaContainer.classList.add('active');
+    }
+
+    // --- Interactive Button Event Listeners ---
+
+    // Tap on Heart button
+    heartTarget.addEventListener('click', () => {
+      if (currentState === STATE.INIT) {
+        handleTap1();
+      } else if (currentState === STATE.TAP_1) {
+        handleTap2();
+      } else if (currentState === STATE.TAP_2) {
+        handleTap3();
+      }
+    });
+
+    // Choice buttons in Secret World
+    document.getElementById('btn-choice-yes').addEventListener('click', () => {
+      triggerGiantReveal(true);
+    });
+
+    document.getElementById('btn-choice-curious').addEventListener('click', () => {
+      triggerGiantReveal(false);
+    });
+
+    // Send the Heart CTA button
+    document.getElementById('btn-send-heart').addEventListener('click', () => {
+      explodeCenterHeart(350, 14, ['#ff2a6d', '#ff4081', '#ffd166', '#ffffff']);
+      showCinemaLine('Some feelings don’t need words.');
+
+      safeTimeout(() => {
+        showCinemaLine('They just need to be felt.', true);
+      }, 2000);
+
+      safeTimeout(() => {
+        showCinemaLine('❤️');
+      }, 3800);
+
+      // Web Share API fallback to Clipboard copy
+      const shareData = {
+        title: "DON’T TAP THE HEART ❤️",
+        text: "Someone sent you a secret heart… don't tap it.",
+        url: window.location.href
+      };
+
+      if (navigator.share && navigator.canShare && navigator.canShare(shareData)) {
+        navigator.share(shareData).catch(() => {});
+      } else {
+        if (navigator.clipboard) {
+          navigator.clipboard.writeText(window.location.href).then(() => {
+            showToast('Link copied to clipboard! Send it to them ❤️');
+          }).catch(() => {
+            showToast('Ready to share with someone special ❤️');
+          });
+        } else {
+          showToast('Ready to share with someone special ❤️');
+        }
+      }
+    });
+
+    function showToast(msg) {
+      toastMsg.textContent = msg;
+      toastMsg.classList.add('show');
+      setTimeout(() => {
+        toastMsg.classList.remove('show');
+      }, 3000);
+    }
+
+    // Replay Button (Seamless reset without page reload)
+    document.getElementById('btn-replay').addEventListener('click', () => {
+      resetExperience();
+    });
+
+    function resetExperience() {
+      clearAllTimers();
+      stopGiantHeartbeat();
+
+      currentState = STATE.INIT;
+      stageTapCount = 0;
+
+      // Reset classes
+      appContainer.className = '';
+      celestialMoon.classList.remove('visible');
+      choiceContainer.classList.remove('active');
+      finalCtaContainer.classList.remove('active');
+
+      // Reset texts
+      titleText.textContent = 'DON’T TAP THE HEART.';
+      titleText.style.opacity = '1';
+      titleText.style.transform = 'none';
+
+      subText.textContent = 'Seriously.';
+      subText.style.opacity = '1';
+      subText.style.transform = 'none';
+
+      heartTarget.style.opacity = '1';
+      heartTarget.style.transform = 'none';
+      heartTarget.style.pointerEvents = 'auto';
+
+      storyContainer.innerHTML = '';
+
+      // Reset particles to subtle floating dust
+      for (let i = 0; i < particles.length; i++) {
+        const p = particles[i];
+        p.reset();
+        if (i < 40) {
+          p.active = true;
+          p.x = Math.random() * width;
+          p.y = Math.random() * height;
+          p.targetX = p.x;
+          p.targetY = p.y;
+          p.targetAlpha = Math.random() * 0.4 + 0.1;
+          p.size = Math.random() * 1.5 + 0.5;
+          p.color = '#ff4081';
+        }
+      }
+
+      audio.playChime(0.8);
+    }
+
+    // --- Main Canvas Render Loop (60fps requestAnimationFrame) ---
+    let lastTime = 0;
+
+    function renderLoop(time) {
+      requestAnimationFrame(renderLoop);
+      const dt = (time - lastTime) * 0.001 || 0.016;
+      lastTime = time;
+
+      // Semi-transparent clear for subtle motion blur
+      ctx.fillStyle = 'rgba(2, 2, 7, 0.28)';
+      ctx.fillRect(0, 0, width, height);
+
+      // Render shooting stars
+      shootingStars.forEach(s => {
+        s.update();
+        s.draw(ctx);
+      });
+
+      // Periodically trigger shooting stars during universe stage
+      if (currentState >= STATE.SECRET_WORLD && Math.random() < 0.003) {
+        const inactive = shootingStars.find(s => !s.active);
+        if (inactive) inactive.trigger();
+      }
+
+      // Update and Draw Particles
+      for (let i = 0; i < particles.length; i++) {
+        const p = particles[i];
+        if (!p.active) continue;
+
+        // Position interpolation towards target
+        p.x += (p.targetX - p.x) * p.ease + p.vx;
+        p.y += (p.targetY - p.y) * p.ease + p.vy;
+        p.alpha += (p.targetAlpha - p.alpha) * 0.08;
+
+        // Velocity damping
+        p.vx *= p.friction;
+        p.vy *= p.friction;
+
+        // Interactive Pointer / Touch physics (Gentle Repulsion)
+        if (pointerX > 0 && pointerY > 0) {
+          const dx = p.x - pointerX;
+          const dy = p.y - pointerY;
+          const distSq = dx * dx + dy * dy;
+          const radius = 90;
+          if (distSq < radius * radius && distSq > 0.01) {
+            const dist = Math.sqrt(distSq);
+            const force = (1 - dist / radius) * 4.5;
+            p.vx += (dx / dist) * force;
+            p.vy += (dy / dist) * force;
+          }
+        }
+
+        // Ambient Organic Motion for Stars & Rest State
+        if (p.isStar) {
+          p.twinklePhase += p.twinkleSpeed;
+          const twinkle = (Math.sin(p.twinklePhase) + 1) * 0.5;
+          p.alpha = p.targetAlpha * (0.4 + 0.6 * twinkle);
+        } else if (p.targetAlpha > 0.2) {
+          // Tiny organic float
+          p.x += Math.sin(time * 0.002 + i) * 0.15;
+          p.y += Math.cos(time * 0.002 + i) * 0.15;
+        }
+
+        // Draw particle if visible
+        if (p.alpha > 0.01) {
+          ctx.beginPath();
+          ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+          ctx.fillStyle = p.color;
+          ctx.globalAlpha = Math.min(Math.max(p.alpha, 0), 1);
+          ctx.fill();
+
+          // Subtle glowing aura for brighter particles
+          if (p.size > 2.2 && p.alpha > 0.6) {
+            ctx.shadowBlur = 8;
+            ctx.shadowColor = p.color;
+            ctx.stroke();
+            ctx.shadowBlur = 0;
+          }
+        }
+      }
+
+      ctx.globalAlpha = 1;
+    }
+
+    // Initialize with a few ambient dust motes
+    for (let i = 0; i < 40; i++) {
+      const p = particles[i];
+      p.active = true;
+      p.x = Math.random() * width;
+      p.y = Math.random() * height;
+      p.targetX = p.x;
+      p.targetY = p.y;
+      p.targetAlpha = Math.random() * 0.35 + 0.1;
+      p.size = Math.random() * 1.6 + 0.6;
+      p.color = '#ff4081';
+    }
+
+    requestAnimationFrame(renderLoop);
+  </script>
+</body>
+</html>
